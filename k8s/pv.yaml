@@ -1,0 +1,62 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  namespace: consul
+  name: pv-consul-0
+  labels:
+    type: local
+spec:
+  storageClassName: standard
+  capacity:
+    storage: 10Gi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  hostPath:
+      path: /tmp/consul/volumes/consul-0
+      type: DirectoryOrCreate
+  claimRef:
+    namespace: consul
+    name: data-consul-consul-server-0 
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  namespace: consul
+  name: pv-consul-1
+  labels:
+    type: local
+spec:
+  storageClassName: standard
+  capacity:
+    storage: 10Gi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  hostPath:
+      path: /tmp/consul/volumes/consul-1 
+      type: DirectoryOrCreate
+  claimRef:
+    namespace: consul
+    name: data-consul-consul-server-1
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  namespace: consul
+  name: pv-consul-2
+  labels:
+    type: local
+spec:
+  storageClassName: standard
+  capacity:
+    storage: 10Gi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  hostPath:
+      path: /tmp/consul/volumes/consul-2 
+      type: DirectoryOrCreate
+  claimRef:
+    namespace: consul
+    name: data-consul-consul-server-2 

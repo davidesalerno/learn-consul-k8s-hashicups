@@ -1,0 +1,74 @@
+# name your datacenter
+global:
+  name: consul
+  datacenter: dc1
+  image: 'hashicorp/consul-enterprise:1.10.3-ent'
+  enableConsulNamespaces: true
+  gossipEncryption:
+    secretKey: key
+    secretName: consul-gossip-encryption-key
+  tls:
+    enableAutoEncrypt: true
+    enabled: true
+    verify: true
+  acls:
+    manageSystemACLs: true
+
+server:
+  # use 3 server
+  replicas: 3
+  affinity: null
+  enterpriseLicense:
+    secretName: 'consul-ent-license'
+    secretKey: 'key'
+    enableLicenseAutoload: true
+  securityContext:
+    fsGroup: 2000
+    runAsGroup: 2000
+    runAsNonRoot: false
+    runAsUser: 0
+
+client:
+  enabled: true
+  # enable grpc on your client to support consul connect
+  grpc: true
+  consulNamespaces:
+    mirroringK8S: true
+  transparentProxy:
+    defaultEnabled: false
+
+ui:
+  enabled: true
+
+connectInject:
+  consulNamespaces:
+    mirroringK8S: true
+  enabled: true
+  replicas: 1
+  transparentProxy:
+    defaultEnabled: false
+
+# Enable the CRD controller
+controller:
+  enabled: true
+  
+ingressGateways:
+  enabled: true
+  affinity: null
+  defaults:
+    consulNamespace: default
+    replicas: 1
+    service:
+      type: ClusterIP
+  gateways:
+    - name: sales-ingress
+      service:
+        ports:
+        - port: 8080
+          nodePort: 32766
+    - name: crm-ingress
+      service:
+        ports:
+        - port: 8080
+          nodePort: 32767
+    

@@ -1,0 +1,37 @@
+apiVersion: consul.hashicorp.com/v1alpha1
+kind: ServiceIntentions
+metadata:
+  name: order-api
+  namespace: sales
+spec:
+  destination:
+    name: order-api
+  sources:
+    - name: frontend
+      action: allow
+---
+apiVersion: consul.hashicorp.com/v1alpha1
+kind: ServiceIntentions
+metadata:
+  name: product-api
+  namespace: sales
+spec:
+  destination:
+    name: product-api
+  sources:
+    - name: frontend
+      action: allow
+---
+apiVersion: consul.hashicorp.com/v1alpha1
+kind: ServiceIntentions
+metadata:
+  name: frontend
+  namespace: sales
+spec:
+  destination:
+    name: frontend
+    namespace: sales
+  sources:
+    - name: sales-ingress
+      namespace: default
+      action: allow

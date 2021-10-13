@@ -1,4 +1,4 @@
-apiVersion: config.consul.io/v1alpha1
+apiVersion: consul.hashicorp.com/v1alpha1
 kind: ServiceRouter
 metadata:
   name: app
@@ -6,7 +6,7 @@ spec:
   routes:
 match:
   http:
-    pathPrefix: “/admin”
+    pathPrefix: "/admin"
 destination:
-  service: “admin”
+  service: "admin"
 
