@@ -23,8 +23,6 @@ Kubernetes cluster available. This repository has been tested with Minikube and 
 
 # Demo application for learning Consul Enterprise on Kubernetes
 
-This repository contains
-
 To deploy the app run the following scripts in order. This assumes you have a
 Kubernetes cluster available. This repository has been tested with Minikube and Kind.
 
@@ -83,6 +81,13 @@ Use this port forward
 `kubectl port-forward service/consul-crm-ingress 8081:8080 --address 0.0.0.0 -n consul`
 
 and then browse http://frontend.ingress.crm.dc1.consul:8081/ui/
+
+## Architecture overview
+
+The below diagram is summarizing the architecture of the Enterprise example.
+
+![Enterprise Architecture diagram](docs/ent/img/diagram.png "Enterprise Architecture diagram")
+
 
 ## Consul UI
 Use this port forward
