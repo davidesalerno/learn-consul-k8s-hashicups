@@ -50,13 +50,6 @@ Use this port forward
 
 and then browse http://frontend.ingress.sales.dc1.consul:8080/ui/
 
-### CRM
-Use this port forward
-
-`kubectl port-forward service/consul-crm-ingress 8081:8080 --address 0.0.0.0 -n consul`
-
-and then browse http://frontend.ingress.crm.dc1.consul:8081/ui/
-
 ## Architecture overview
 
 The below diagram is summarizing the architecture of the Enterprise example.
@@ -70,3 +63,11 @@ Use this port forward
  `kubectl port-forward service/consul-server 8501 --address 0.0.0.0 -n consul`
  
 and then browse http://localhost:8501
+
+## Useful info for the Request Timeout issue
+
+1. The Order API is particularly slow (it takes more than 15 seconds to provide a response)
+2. The Frontend service has got the Order API as an upstream service
+3. The Frontend service is exposed outside the mesh through the Sales Ingress Gateway
+
+If you perform a call to the Ingress gateway to have a response from the frontend service (i.e. curl http://frontend.ingress.sales.dc1.consul:8080/) you will get a "504 - Gateway timeout".
