@@ -1,0 +1,26 @@
+apiVersion: consul.hashicorp.com/v1alpha1
+kind: ServiceRouter
+metadata:
+  name: frontend
+spec:
+  routes:
+    - match:
+        http:
+      destination:
+        service: frontend
+        namespace: sales
+        requestTimeout: '30s'
+---
+apiVersion: consul.hashicorp.com/v1alpha1
+kind: ServiceRouter
+metadata:
+  name: order-api
+spec:
+  routes:
+    - match:
+        http:
+      destination:
+        service: order-api
+        namespace: sales
+        requestTimeout: '30s'
+        

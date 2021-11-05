@@ -5,8 +5,7 @@ metadata:
   namespace: sales
 spec:
   defaultSubset: v1
+  connectTimeout: 30s
   subsets:
     v1:
       filter: "Service.Meta.version == v1"
-    v2:
-      filter: "Service.Meta.version == v2"

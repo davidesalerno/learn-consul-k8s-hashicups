@@ -52,3 +52,5 @@ spec:
               value: 'order-api'
             - name: 'MESSAGE'
               value: 'Hello World'
+            - name: 'TIMING_50_PERCENTILE'
+              value: '18s'

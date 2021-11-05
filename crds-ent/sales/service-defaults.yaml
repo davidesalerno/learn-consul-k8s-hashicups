@@ -4,6 +4,10 @@ metadata:
   name: frontend
 spec:
   protocol: "http"
+  upstreamConfig:
+    defaults:
+      protocol: "http"
+      connectTimeoutMs: 30000
 ---
 apiVersion: consul.hashicorp.com/v1alpha1
 kind: ServiceDefaults
@@ -11,6 +15,10 @@ metadata:
   name: order-api
 spec:
   protocol: "http"
+  upstreamConfig:
+    defaults:
+      protocol: "http"
+      connectTimeoutMs: 30000
 ---
 apiVersion: consul.hashicorp.com/v1alpha1
 kind: ServiceDefaults
@@ -18,3 +26,7 @@ metadata:
   name: product-api
 spec:
   protocol: "http"
+  upstreamConfig:
+    defaults:
+      protocol: "http"
+      connectTimeoutMs: 30000

@@ -2,7 +2,7 @@
 global:
   name: consul
   datacenter: dc1
-  image: 'hashicorp/consul-enterprise:1.10.3-ent'
+  image: 'hashicorp/consul-enterprise:1.10.2-ent'
   enableConsulNamespaces: true
   gossipEncryption:
     secretKey: key
@@ -66,9 +66,3 @@ ingressGateways:
         ports:
         - port: 8080
           nodePort: 32766
-    - name: crm-ingress
-      service:
-        ports:
-        - port: 8080
-          nodePort: 32767
-    
