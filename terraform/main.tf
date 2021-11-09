@@ -216,6 +216,13 @@ data "kubectl_path_documents" "ingress-manifests" {
     pattern = "../crds-ent/ingress/*.yaml"
 }
 
+data "kubectl_path_documents" "global-manifests" {
+    pattern = "../crds-ent/global/*.yaml"
+}
+
+data "kubectl_filename_list" "global-manifests" {
+    pattern = "../crds-ent/global/*.yaml"
+}
 resource "kubectl_manifest" "ms" {
     depends_on = [kubernetes_namespace.sales, helm_release.consul ]
     for_each  = data.kubectl_path_documents.ms-manifests.manifests
@@ -233,6 +240,12 @@ resource "kubectl_manifest" "crds" {
 resource "kubectl_manifest" "ingress" {
     depends_on = [kubernetes_namespace.sales, helm_release.consul]
     for_each  = data.kubectl_path_documents.ingress-manifests.manifests
+    yaml_body = each.value
+}
+
+resource "kubectl_manifest" "global" {
+    depends_on = [kubernetes_namespace.consul, helm_release.consul]
+    for_each  = data.kubectl_path_documents.global-manifests.manifests
     yaml_body = each.value
 }
 
