@@ -1,8 +1,13 @@
 adminPassword: password
 
 rbac:
-  create: false
-  pspEnabled: false
+  create: true
+  pspEnabled: true
+  namespaced: true
+  extraRoleRules: 
+   - apiGroups: [""]
+     resources: ["configmaps","secrets"]
+     verbs: ["watch","list","get"]
 
 # Disable test pods
 testFramework:
@@ -16,6 +21,10 @@ podAnnotations:
 
 service:
   port: 3000
+
+sidecar:
+  dashboards: 
+    enabled : true
 
 # Configure the prometheus data source. We expect prometheus:9090 in the same namespace.
 datasources:
@@ -31,3 +40,5 @@ datasources:
         jsonData:
           timeInterval: 5s
         editable: true
+
+namespaceOverride: monitoring

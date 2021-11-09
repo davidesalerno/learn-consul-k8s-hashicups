@@ -38,9 +38,3 @@ variable "HOST_PATH3" {
   description = "Server 3 storage host path"
 }
 
-# obtain a new one for each new deployment with command consul keygen
-variable "GOSSIP_KEY" {
-  default = "+cvMRNZv+TxRE0sZfnD3L97YeACl/W2e0kRaWxWT64Q="
-  description = "Gossip protocol encryption key"
-}
-

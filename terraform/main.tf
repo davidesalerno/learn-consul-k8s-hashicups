@@ -15,6 +15,10 @@ terraform {
       source = "gavinbunney/kubectl"
       version = "1.13.0"
     }
+    external = {
+      source = "hashicorp/external"
+      version = "2.1.0"
+    }
   }
 }
 
@@ -55,6 +59,13 @@ resource "kubernetes_namespace" "monitoring" {
     name = "monitoring"
   }
 }
+provider "external" {
+}
+
+data "external" "gossip-enc-key" {
+  program = ["sh", "get-gossip-enc-key.sh"]
+}
+
 
 resource "kubernetes_secret" "consul-ent-license" {
   depends_on = [kubernetes_namespace.consul]
@@ -74,7 +85,7 @@ resource "kubernetes_secret" "consul-gossip-encryption-key" {
     namespace = "consul"
   }
   data = {
-    key = var.GOSSIP_KEY
+    key = data.external.gossip-enc-key.result["key"]
   }
 }
 
@@ -159,6 +170,7 @@ resource "kubernetes_persistent_volume" "pv-consul-2" {
   }
 }
 
+
 provider "helm" {
   kubernetes {
     host = kind_cluster.consul.endpoint
@@ -205,21 +217,21 @@ data "kubectl_path_documents" "ingress-manifests" {
 }
 
 resource "kubectl_manifest" "ms" {
-    depends_on = [kubernetes_namespace.sales]
+    depends_on = [kubernetes_namespace.sales, helm_release.consul ]
     for_each  = data.kubectl_path_documents.ms-manifests.manifests
     yaml_body = each.value
     override_namespace = "sales"
 }
 
 resource "kubectl_manifest" "crds" {
-    depends_on = [kubernetes_namespace.sales]
+    depends_on = [kubernetes_namespace.sales, helm_release.consul]
     for_each  = data.kubectl_path_documents.crds-manifests.manifests
     yaml_body = each.value
     override_namespace = "sales"
 }
 
 resource "kubectl_manifest" "ingress" {
-    depends_on = [kubernetes_namespace.sales]
+    depends_on = [kubernetes_namespace.sales, helm_release.consul]
     for_each  = data.kubectl_path_documents.ingress-manifests.manifests
     yaml_body = each.value
 }
@@ -227,7 +239,7 @@ resource "kubectl_manifest" "ingress" {
 
 resource "helm_release" "prometheus" {
   name       = "prometheus"
-  depends_on = [ helm_release.consul]
+  depends_on = [ kubernetes_namespace.monitoring, helm_release.consul]
   namespace  = "monitoring"
   repository = "https://prometheus-community.github.io/helm-charts"
   chart      = "prometheus"
@@ -235,10 +247,28 @@ resource "helm_release" "prometheus" {
     "${file(var.HELM_PROMETHEUS_VALUE_PATH)}"
   ]
 }
+resource "kubernetes_config_map" "grafana-dashboards" {
+  depends_on = [ kubernetes_namespace.monitoring]
+  metadata {
+    name      = "grafana-dashboards-consul"
+    namespace = "monitoring"
+
+    labels = {
+      grafana_dashboard = 1
+    }
+
+  }
+
+  data = {
+    "service-overview.json"        = file("../monitoring/grafana/service-overview.json")
+    "request-timeouts.json" = file("../monitoring/grafana/request-timeouts.json")
+  }
+}
+
 
 resource "helm_release" "grafana" {
   name       = "grafana"
-  depends_on = [ helm_release.consul]
+  depends_on = [ kubernetes_namespace.monitoring, helm_release.consul, kubernetes_config_map.grafana-dashboards]
   namespace  = "monitoring"
   repository = "https://grafana.github.io/helm-charts"
   chart      = "grafana"
