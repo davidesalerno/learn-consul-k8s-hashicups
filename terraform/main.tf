@@ -28,7 +28,28 @@ provider "kind" {
 
 resource "kind_cluster" "consul" {
     name = "consul"
-    wait_for_ready = true
+    node_image = "kindest/node:v1.18.4"
+    kind_config {
+      kind = "Cluster"
+      api_version = "kind.x-k8s.io/v1alpha4"
+
+      node {
+        role = "control-plane"
+      }
+
+      node {
+        role = "worker"
+      }
+
+      node {
+        role = "worker"
+      }
+
+      node {
+        role = "worker"
+      }
+  }
+  wait_for_ready = true
 }
 
 provider "kubernetes" {
@@ -200,8 +221,6 @@ resource "helm_release" "consul" {
 }
 
 
-
-
 provider "kubectl" {
   host = kind_cluster.consul.endpoint
 
@@ -265,7 +284,7 @@ resource "kubectl_manifest" "crds-crm" {
 }
 
 resource "kubectl_manifest" "ingress" {
-    depends_on = [kubernetes_namespace.sales, helm_release.consul]
+    depends_on = [kubernetes_namespace.consul, kubectl_manifest.crds-crm, kubectl_manifest.crds-sales,kubectl_manifest.ms-crm, kubectl_manifest.ms-sales, helm_release.consul]
     for_each  = data.kubectl_path_documents.ingress-manifests.manifests
     yaml_body = each.value
 }

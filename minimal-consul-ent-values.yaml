@@ -18,6 +18,13 @@ server:
   # use 3 server
   replicas: 3
   affinity: null
+  resources:
+    requests:
+      memory: '32Mi'
+      cpu: '50m'
+    limits:
+      memory: '64Mi'
+      cpu: '100m'
   enterpriseLicense:
     secretName: 'consul-ent-license'
     secretKey: 'key'
@@ -27,9 +34,24 @@ server:
     runAsGroup: 2000
     runAsNonRoot: false
     runAsUser: 0
+  extraConfig: |
+    {
+      "ui_config": {
+        "dashboard_url_templates": {
+          "service": "http://localhost:3000/d/gC9j6mc7z/service-overview?orgId=1&var-service={{ "{{" }}Service.Name}}&var-namespace={{ "{{" }}Service.Namespace}}&var-dc={{ "{{" }}Datacenter}}"
+        }
+      }
+    }
 
 client:
   enabled: true
+  resources:
+    requests:
+      memory: '16Mi'
+      cpu: '25m'
+    limits:
+      memory: '64Mi'
+      cpu: '100m'
   # enable grpc on your client to support consul connect
   grpc: true
   consulNamespaces:
@@ -39,6 +61,10 @@ client:
 
 ui:
   enabled: true
+  metrics:
+    enabled: true # by default, this inherits from the value global.metrics.enabled
+    provider: "prometheus"
+    baseURL: http://prometheus-server.monitoring.svc.cluster.local
 
 connectInject:
   consulNamespaces:
@@ -47,6 +73,14 @@ connectInject:
   replicas: 1
   transparentProxy:
     defaultEnabled: false
+  sidecarProxy:
+    resources:
+      requests:
+        memory: '8Mi'
+        cpu: '12m'
+      limits:
+        memory: '16Mi'
+        cpu: '25m'
 
 # Enable the CRD controller
 controller:
@@ -60,6 +94,13 @@ ingressGateways:
     replicas: 1
     service:
       type: ClusterIP
+  resources:
+    requests:
+      memory: '16Mi'
+      cpu: '25m'
+    limits:
+      memory: '64Mi'
+      cpu: '100m'
   gateways:
     - name: sales-ingress
       service:
