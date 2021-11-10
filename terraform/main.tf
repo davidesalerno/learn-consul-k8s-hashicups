@@ -53,6 +53,13 @@ resource "kubernetes_namespace" "sales" {
   }
 }
 
+resource "kubernetes_namespace" "crm" {
+  depends_on = [kind_cluster.consul]
+  metadata {
+    name = "crm"
+  }
+}
+
 resource "kubernetes_namespace" "monitoring" {
   depends_on = [kind_cluster.consul]
   metadata {
@@ -203,12 +210,21 @@ provider "kubectl" {
   cluster_ca_certificate = kind_cluster.consul.cluster_ca_certificate
 }
 
-data "kubectl_path_documents" "ms-manifests" {
+data "kubectl_path_documents" "ms-sales-manifests" {
     pattern = "../hashicups-ent/sales/*.yaml"
 }
 
-data "kubectl_path_documents" "crds-manifests" {
+data "kubectl_path_documents" "crds-sales-manifests" {
     pattern = "../crds-ent/sales/*.yaml"
+}
+
+
+data "kubectl_path_documents" "ms-crm-manifests" {
+    pattern = "../hashicups-ent/crm/*.yaml"
+}
+
+data "kubectl_path_documents" "crds-crm-manifests" {
+    pattern = "../crds-ent/crm/*.yaml"
 }
 
 
@@ -220,21 +236,32 @@ data "kubectl_path_documents" "global-manifests" {
     pattern = "../crds-ent/global/*.yaml"
 }
 
-data "kubectl_filename_list" "global-manifests" {
-    pattern = "../crds-ent/global/*.yaml"
-}
-resource "kubectl_manifest" "ms" {
+resource "kubectl_manifest" "ms-sales" {
     depends_on = [kubernetes_namespace.sales, helm_release.consul ]
-    for_each  = data.kubectl_path_documents.ms-manifests.manifests
+    for_each  = data.kubectl_path_documents.ms-sales-manifests.manifests
     yaml_body = each.value
     override_namespace = "sales"
 }
 
-resource "kubectl_manifest" "crds" {
+resource "kubectl_manifest" "crds-sales" {
     depends_on = [kubernetes_namespace.sales, helm_release.consul]
-    for_each  = data.kubectl_path_documents.crds-manifests.manifests
+    for_each  = data.kubectl_path_documents.crds-sales-manifests.manifests
     yaml_body = each.value
     override_namespace = "sales"
+}
+
+resource "kubectl_manifest" "ms-crm" {
+    depends_on = [kubernetes_namespace.crm, helm_release.consul ]
+    for_each  = data.kubectl_path_documents.ms-crm-manifests.manifests
+    yaml_body = each.value
+    override_namespace = "crm"
+}
+
+resource "kubectl_manifest" "crds-crm" {
+    depends_on = [kubernetes_namespace.crm, helm_release.consul]
+    for_each  = data.kubectl_path_documents.crds-crm-manifests.manifests
+    yaml_body = each.value
+    override_namespace = "crm"
 }
 
 resource "kubectl_manifest" "ingress" {
