@@ -1,7 +1,7 @@
 apiVersion: consul.hashicorp.com/v1alpha1
 kind: IngressGateway
 metadata:
-  name: crm-ingress
+  name: ingress-gateway
   namespace: default
 spec:
   listeners:
@@ -9,4 +9,4 @@ spec:
       protocol: http
       services:
         - name: frontend
-          namespace: crm
+          namespace: apps

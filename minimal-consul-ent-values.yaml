@@ -102,14 +102,9 @@ ingressGateways:
       memory: '64Mi'
       cpu: '100m'
   gateways:
-    - name: sales-ingress
+    - name: ingress-gateway
       service:
         ports:
         - port: 8080
           nodePort: 32766
-    - name: crm-ingress
-      service:
-        ports:
-        - port: 8080
-          nodePort: 32767
     

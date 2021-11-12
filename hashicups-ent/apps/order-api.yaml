@@ -1,16 +1,16 @@
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-  name: customer-api
+  name: order-api
 ---
-# Service to expose web customer-api
+# Service to expose web order-api
 apiVersion: v1
 kind: Service
 metadata:
-  name: customer-api
+  name: order-api
 spec:
   selector:
-    app: customer-api
+    app: order-api
   ports:
     - name: http
       protocol: TCP
@@ -20,24 +20,24 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: customer-api-deployment
+  name: order-api-deployment
   labels:
-    app: customer-api
+    app: order-api
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: customer-api
+      app: order-api
   template:
     metadata:
       labels:
-        app: customer-api
+        app: order-api
       annotations:
         'consul.hashicorp.com/connect-inject': 'true'
     spec:
-      serviceAccountName: customer-api
+      serviceAccountName: order-api
       containers:
-        - name: customer-api
+        - name: order-api
           image: nicholasjackson/fake-service:v0.22.7
           resources:
             limits:
@@ -49,6 +49,6 @@ spec:
             - name: 'LISTEN_ADDR'
               value: '0.0.0.0:80'
             - name: 'NAME'
-              value: 'customer-api'
+              value: 'order-api'
             - name: 'MESSAGE'
-              value: 'Hello World'
+              value: 'Hello World' 

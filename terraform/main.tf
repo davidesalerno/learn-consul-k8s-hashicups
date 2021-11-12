@@ -28,28 +28,7 @@ provider "kind" {
 
 resource "kind_cluster" "consul" {
     name = "consul"
-    node_image = "kindest/node:v1.18.4"
-    kind_config {
-      kind = "Cluster"
-      api_version = "kind.x-k8s.io/v1alpha4"
-
-      node {
-        role = "control-plane"
-      }
-
-      node {
-        role = "worker"
-      }
-
-      node {
-        role = "worker"
-      }
-
-      node {
-        role = "worker"
-      }
-  }
-  wait_for_ready = true
+    wait_for_ready = true
 }
 
 provider "kubernetes" {
@@ -67,17 +46,10 @@ resource "kubernetes_namespace" "consul" {
   }
 }
 
-resource "kubernetes_namespace" "sales" {
+resource "kubernetes_namespace" "apps" {
   depends_on = [kind_cluster.consul]
   metadata {
-    name = "sales"
-  }
-}
-
-resource "kubernetes_namespace" "crm" {
-  depends_on = [kind_cluster.consul]
-  metadata {
-    name = "crm"
+    name = "apps"
   }
 }
 
@@ -144,61 +116,6 @@ resource "kubernetes_persistent_volume" "pv-consul-0" {
   }
 }
 
-resource "kubernetes_persistent_volume" "pv-consul-1" {
-  depends_on = [kubernetes_namespace.consul]
-  metadata {
-    name = "pv-consul-1"
-    labels = {
-      type = "local"
-    }
-  }
-  spec {
-    storage_class_name = "manual"
-    capacity = {
-      storage = var.SERVER_STORAGE
-    }
-    access_modes = ["ReadWriteOnce"]
-    persistent_volume_reclaim_policy = "Retain"
-    claim_ref {
-      namespace = "consul"
-      name = "data-consul-consul-server-1"
-    }
-    persistent_volume_source {
-      host_path {
-        path = var.HOST_PATH2
-      }
-    }
-  }
-}
-
-resource "kubernetes_persistent_volume" "pv-consul-2" {
-  depends_on = [kubernetes_namespace.consul]
-  metadata {
-    name = "pv-consul-2"
-    labels = {
-      type = "local"
-    }
-  }
-  spec {
-    storage_class_name = "manual"
-    capacity = {
-      storage = var.SERVER_STORAGE
-    }
-    access_modes = ["ReadWriteOnce"]
-    persistent_volume_reclaim_policy = "Retain"
-    claim_ref {
-      namespace = "consul"
-      name = "data-consul-consul-server-2"
-    }
-    persistent_volume_source {
-      host_path {
-        path = var.HOST_PATH3
-      }
-    }
-  }
-}
-
-
 provider "helm" {
   kubernetes {
     host = kind_cluster.consul.endpoint
@@ -211,7 +128,7 @@ provider "helm" {
 
 resource "helm_release" "consul" {
   name       = "consul"
-  depends_on = [ kubernetes_secret.consul-gossip-encryption-key,kubernetes_secret.consul-ent-license, kubernetes_persistent_volume.pv-consul-0, kubernetes_persistent_volume.pv-consul-1, kubernetes_persistent_volume.pv-consul-2 ]
+  depends_on = [ kubernetes_secret.consul-gossip-encryption-key, kubernetes_secret.consul-ent-license, kubernetes_persistent_volume.pv-consul-0 ]
   namespace  = "consul"
   repository = "https://helm.releases.hashicorp.com"
   chart      = "consul"
@@ -229,23 +146,13 @@ provider "kubectl" {
   cluster_ca_certificate = kind_cluster.consul.cluster_ca_certificate
 }
 
-data "kubectl_path_documents" "ms-sales-manifests" {
-    pattern = "../hashicups-ent/sales/*.yaml"
+data "kubectl_path_documents" "ms-manifests" {
+    pattern = "../hashicups-ent/apps/*.yaml"
 }
 
-data "kubectl_path_documents" "crds-sales-manifests" {
-    pattern = "../crds-ent/sales/*.yaml"
+data "kubectl_path_documents" "crds-manifests" {
+    pattern = "../crds-ent/apps/*.yaml"
 }
-
-
-data "kubectl_path_documents" "ms-crm-manifests" {
-    pattern = "../hashicups-ent/crm/*.yaml"
-}
-
-data "kubectl_path_documents" "crds-crm-manifests" {
-    pattern = "../crds-ent/crm/*.yaml"
-}
-
 
 data "kubectl_path_documents" "ingress-manifests" {
     pattern = "../crds-ent/ingress/*.yaml"
@@ -255,36 +162,22 @@ data "kubectl_path_documents" "global-manifests" {
     pattern = "../crds-ent/global/*.yaml"
 }
 
-resource "kubectl_manifest" "ms-sales" {
-    depends_on = [kubernetes_namespace.sales, helm_release.consul ]
-    for_each  = data.kubectl_path_documents.ms-sales-manifests.manifests
+resource "kubectl_manifest" "ms-apps" {
+    depends_on = [kubernetes_namespace.apps, helm_release.consul ]
+    for_each  = data.kubectl_path_documents.ms-manifests.manifests
     yaml_body = each.value
-    override_namespace = "sales"
+    override_namespace = "apps"
 }
 
-resource "kubectl_manifest" "crds-sales" {
-    depends_on = [kubernetes_namespace.sales, helm_release.consul]
-    for_each  = data.kubectl_path_documents.crds-sales-manifests.manifests
+resource "kubectl_manifest" "crds-apps" {
+    depends_on = [kubernetes_namespace.apps, helm_release.consul]
+    for_each  = data.kubectl_path_documents.crds-manifests.manifests
     yaml_body = each.value
-    override_namespace = "sales"
-}
-
-resource "kubectl_manifest" "ms-crm" {
-    depends_on = [kubernetes_namespace.crm, helm_release.consul ]
-    for_each  = data.kubectl_path_documents.ms-crm-manifests.manifests
-    yaml_body = each.value
-    override_namespace = "crm"
-}
-
-resource "kubectl_manifest" "crds-crm" {
-    depends_on = [kubernetes_namespace.crm, helm_release.consul]
-    for_each  = data.kubectl_path_documents.crds-crm-manifests.manifests
-    yaml_body = each.value
-    override_namespace = "crm"
+    override_namespace = "apps"
 }
 
 resource "kubectl_manifest" "ingress" {
-    depends_on = [kubernetes_namespace.consul, kubectl_manifest.crds-crm, kubectl_manifest.crds-sales,kubectl_manifest.ms-crm, kubectl_manifest.ms-sales, helm_release.consul]
+    depends_on = [kubernetes_namespace.consul, kubectl_manifest.crds-apps, kubectl_manifest.ms-apps, helm_release.consul]
     for_each  = data.kubectl_path_documents.ingress-manifests.manifests
     yaml_body = each.value
 }
