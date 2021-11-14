@@ -52,3 +52,7 @@ spec:
               value: 'order-api'
             - name: 'MESSAGE'
               value: 'Hello World' 
+            - name: 'ERROR_RATE'
+              value: '1'
+            - name: 'ERROR_CODE'
+              value: '500'
