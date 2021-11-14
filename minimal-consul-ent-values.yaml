@@ -16,7 +16,7 @@ global:
 
 server:
   # use 3 server
-  replicas: 3
+  replicas: 1
   affinity: null
   resources:
     requests:
