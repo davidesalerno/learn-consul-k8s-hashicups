@@ -52,3 +52,5 @@ spec:
               value: 'product-api'
             - name: 'MESSAGE'
               value: 'Hello World'
+            - name: 'TIMING_50_PERCENTILE'
+              value: '16s'
