@@ -1,0 +1,14 @@
+apiVersion: consul.hashicorp.com/v1alpha1
+kind: ServiceRouter
+metadata:
+  name: product-api
+spec:
+  routes:
+    - match:
+        http:
+      destination:
+        service: product-api
+        namespace: apps
+        retryOnConnectFailure: true
+        numRetries: 3
+        retryOnStatusCodes: [429]
