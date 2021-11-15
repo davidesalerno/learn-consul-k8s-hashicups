@@ -22,6 +22,17 @@ elif [ "$1" = "s5" ]; then
     kubectl apply -f hashicups-ent/apps/product-api.yaml -n apps
     kubectl delete -f crds-ent/apps/service-router.yaml -n apps
     git rm -f crds-ent/apps/service-router.yaml
+elif [ "$1" = "s6" ]; then
+    git checkout rp-demo-step-4 hashicups-ent/apps/product-api.yaml
+    kubectl apply -f hashicups-ent/apps/product-api.yaml -n apps
+elif [ "$1" = "s7" ]; then
+    git checkout rp-demo-step-5 crds-ent/apps/service-router.yaml
+    kubectl apply -f crds-ent/apps/service-router.yaml -n apps
+elif [ "$1" = "s8" ]; then
+    git checkout HEAD -- hashicups-ent/apps/product-api.yaml
+    kubectl apply -f hashicups-ent/apps/product-api.yaml -n apps
+    kubectl delete -f crds-ent/apps/service-router.yaml -n apps
+    git rm -f crds-ent/apps/service-router.yaml
 else
     echo "Step not yet prepared"
 fi
