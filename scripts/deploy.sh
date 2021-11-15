@@ -3,32 +3,32 @@
 set -e
 cd $(dirname $0)/..
 
-if [ "$1" = "s1" ]; then
+if [ "$1" = "step1" ]; then
     git checkout rp-demo-step-1 hashicups-ent/apps/order-api.yaml
     kubectl apply -f hashicups-ent/apps/order-api.yaml -n apps
-elif [ "$1" = "s2" ]; then
+elif [ "$1" = "step2" ]; then
     git checkout HEAD --  hashicups-ent/apps/order-api.yaml
     kubectl apply -f hashicups-ent/apps/order-api.yaml -n apps
-elif [ "$1" = "s3" ]; then
+elif [ "$1" = "step3" ]; then
     git checkout rp-demo-step-2 hashicups-ent/apps/product-api.yaml
     git checkout rp-demo-step-2 crds-ent/apps/service-router.yaml
     kubectl apply -f hashicups-ent/apps/product-api.yaml -n apps
     kubectl apply -f crds-ent/apps/service-router.yaml -n apps
-elif [ "$1" = "s4" ]; then
+elif [ "$1" = "step4" ]; then
     git checkout rp-demo-step-3 crds-ent/apps/service-router.yaml
     kubectl apply -f crds-ent/apps/service-router.yaml -n apps
-elif [ "$1" = "s5" ]; then
+elif [ "$1" = "step5" ]; then
     git checkout HEAD -- hashicups-ent/apps/product-api.yaml
     kubectl apply -f hashicups-ent/apps/product-api.yaml -n apps
     kubectl delete -f crds-ent/apps/service-router.yaml -n apps
     git rm -f crds-ent/apps/service-router.yaml
-elif [ "$1" = "s6" ]; then
+elif [ "$1" = "step6" ]; then
     git checkout rp-demo-step-4 hashicups-ent/apps/product-api.yaml
     kubectl apply -f hashicups-ent/apps/product-api.yaml -n apps
-elif [ "$1" = "s7" ]; then
+elif [ "$1" = "step7" ]; then
     git checkout rp-demo-step-5 crds-ent/apps/service-router.yaml
     kubectl apply -f crds-ent/apps/service-router.yaml -n apps
-elif [ "$1" = "s8" ]; then
+elif [ "$1" = "step8" ]; then
     git checkout HEAD -- hashicups-ent/apps/product-api.yaml
     kubectl apply -f hashicups-ent/apps/product-api.yaml -n apps
     kubectl delete -f crds-ent/apps/service-router.yaml -n apps

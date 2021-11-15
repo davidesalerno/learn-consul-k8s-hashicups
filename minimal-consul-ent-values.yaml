@@ -13,6 +13,8 @@ global:
     verify: true
   acls:
     manageSystemACLs: true
+  metrics:
+    enabled: true
 
 server:
   # use 3 server

@@ -212,8 +212,7 @@ resource "kubernetes_config_map" "grafana-dashboards" {
   }
 
   data = {
-    "service-overview.json"        = file("../monitoring/grafana/service-overview.json")
-    "request-timeouts.json" = file("../monitoring/grafana/request-timeouts.json")
+    "resiliency-dashboard.json"        = file("../monitoring/grafana/resiliency-dashboard.json")
   }
 }
 
